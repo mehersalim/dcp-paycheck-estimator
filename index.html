@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paycheck Estimator — College Program</title>
+<style>
+  :root{
+    /* Palette */
+    --cyan:#7EF1FC;
+    --yellow:#FCEC7E;
+    --pink:#FC7EC6;
+    --mauve:#A78C9B;
+    --slate:#647B7D;
+    --olive:#7D7A64;
+    /* Shades/tints derived from the palette for readable text & surfaces */
+    --slate-dk:#4B5C5E;
+    --olive-dk:#5E5C4B;
+    --pink-dk:#A5266F;
+    --teal-dk:#3B6F73;
+    --ink:#2A3638;
+    --ink-soft:#55696B;
+    --page:#F6FBFB;
+    --field:#FFFEF3;
+    --line:#E3D9DE;
+    --paper:#ffffff;
+    --good:#3B6F73;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--page);
+    color:var(--ink);
+    font-family:'Segoe UI', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .top{
+    background:linear-gradient(135deg,var(--slate-dk) 0%,var(--olive-dk) 100%);
+    color:#fff;
+    padding:36px 24px 44px;
+    position:relative;
+    overflow:hidden;
+  }
+  .top::after{
+    content:"";
+    position:absolute;
+    right:-60px; top:-60px;
+    width:220px;height:220px;
+    border-radius:50%;
+    border:2px solid rgba(252,126,198,0.45);
+  }
+  .top::before{
+    content:"";
+    position:absolute;
+    right:20px; bottom:-90px;
+    width:180px;height:180px;
+    border-radius:50%;
+    border:2px solid rgba(126,241,252,0.35);
+  }
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--cyan);
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  h1{
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:28px;
+    margin:0 0 6px;
+    font-weight:700;
+    max-width:480px;
+  }
+  .sub{
+    font-size:14px;
+    color:#E4EFF0;
+    max-width:460px;
+    line-height:1.5;
+  }
+  .wrap{
+    max-width:640px;
+    margin:-24px auto 60px;
+    padding:0 16px;
+  }
+  .card{
+    background:var(--paper);
+    border-radius:14px;
+    box-shadow:0 10px 30px rgba(75,92,94,0.14);
+    padding:22px 20px;
+    margin-bottom:16px;
+    border:1px solid var(--line);
+    border-top:4px solid var(--yellow);
+  }
+  .card h2{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.09em;
+    color:var(--slate-dk);
+    margin:0 0 16px;
+    font-weight:700;
+    display:inline-block;
+    padding-bottom:4px;
+    border-bottom:3px solid var(--pink);
+  }
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+    margin-bottom:6px;
+    margin-top:14px;
+  }
+  label:first-of-type{margin-top:0;}
+  .hint{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:4px;
+    line-height:1.4;
+  }
+  input[type=number]{
+    width:100%;
+    padding:11px 12px;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    font-size:16px;
+    background:var(--field);
+    color:var(--ink);
+    font-family:inherit;
+  }
+  input[type=number]:focus, select:focus{
+    outline:none;
+    border-color:var(--pink);
+    box-shadow:0 0 0 3px rgba(252,126,198,0.28);
+  }
+  select{
+    width:100%;
+    padding:11px 12px;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    font-size:16px;
+    background:var(--field);
+    color:var(--ink);
+    font-family:inherit;
+  }
+  .row2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+  }
+  .segmented{
+    display:flex;
+    border:1.5px solid var(--line);
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .segmented button{
+    flex:1;
+    padding:10px 6px;
+    border:none;
+    background:var(--field);
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink-soft);
+    cursor:pointer;
+    font-family:inherit;
+    border-right:1.5px solid var(--line);
+  }
+  .segmented button:last-child{border-right:none;}
+  .segmented button.active{
+    background:var(--cyan);
+    color:var(--ink);
+  }
+  .segmented button:focus-visible{
+    outline:3px solid var(--pink);
+    outline-offset:-3px;
+  }
+  .custom-rate{
+    margin-top:10px;
+    display:none;
+  }
+  .custom-rate.show{display:block;}
+
+  .result-hero{
+    background:linear-gradient(135deg,var(--cyan) 0%,var(--yellow) 100%);
+    color:var(--ink);
+    border-radius:14px;
+    padding:24px 20px;
+    text-align:center;
+    margin-bottom:16px;
+    box-shadow:0 10px 30px rgba(75,92,94,0.14);
+    border-bottom:4px solid var(--pink);
+  }
+  .result-hero .label{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--slate-dk);
+    font-weight:700;
+    margin:0;
+  }
+  .result-hero .amount{
+    font-family:Georgia, serif;
+    font-size:44px;
+    font-weight:700;
+    margin:6px 0 2px;
+  }
+  .result-hero .per{
+    font-size:13px;
+    color:var(--slate-dk);
+  }
+
+  .lines{
+    border-top:1px solid var(--line);
+  }
+  .line{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:11px 0;
+    border-bottom:1px solid var(--line);
+    font-size:14.5px;
+  }
+  .line .lname{color:var(--ink);}
+  .line .lsub{
+    display:block;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    margin-top:1px;
+  }
+  .line .lval{
+    font-weight:600;
+    font-variant-numeric:tabular-nums;
+  }
+  .line.deduct .lval{color:var(--pink-dk);}
+  .line.add .lval{color:var(--good);}
+  .line.total{
+    border-top:2px solid var(--slate-dk);
+    border-bottom:none;
+    padding-top:14px;
+    margin-top:4px;
+    font-size:16px;
+    font-weight:700;
+  }
+  .line.total .lval{color:var(--slate-dk);}
+
+  .footnote{
+    font-size:12px;
+    color:var(--ink-soft);
+    line-height:1.6;
+    padding-top:8px;
+  }
+  .footnote strong{color:var(--ink);}
+
+  @media (max-width:480px){
+    .top{padding:28px 18px 38px;}
+    h1{font-size:23px;}
+    .wrap{padding:0 12px;}
+    .card{padding:18px 16px;}
+    .row2{grid-template-columns:1fr;gap:0;}
+    .segmented button{padding:12px 4px;font-size:12.5px;line-height:1.25;}
+    .result-hero .amount{font-size:38px;}
+    .line{font-size:14px;gap:12px;}
+    .line .lval{white-space:nowrap;}
+  }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="eyebrow">College Program · Cast Member Pay</div>
+  <h1>Final Paycheck Estimator</h1>
+  <div class="sub">Estimate your take-home pay after federal tax withholding, FICA, and a 401(k) contribution. For planning purposes only — not tax advice.</div>
+</div>
+
+<div class="wrap">
+
+  <div class="card">
+    <h2>Program location</h2>
+    <label style="margin-top:0">Where's your program?</label>
+    <div class="segmented" id="locSeg">
+      <button data-loc="FL" class="active">Walt Disney World, FL</button>
+      <button data-loc="CA">Disneyland, CA</button>
+      <button data-loc="OTHER">Other / custom</button>
+    </div>
+    <div class="hint" id="locHint">Florida has no state income tax, so this only estimates federal tax and FICA.</div>
+    <div class="custom-rate" id="customRateWrap">
+      <label>Flat state tax rate to apply (%)</label>
+      <input type="number" id="customRate" value="0" step="0.1" min="0" max="15">
+    </div>
+    <div class="custom-rate" id="caAllowWrap">
+      <label>CA DE 4 withholding allowances</label>
+      <input type="number" id="caAllow" value="0" step="1" min="0">
+      <div class="hint">Each allowance lowers CA withholding by $168.30 a year. With no DE 4 on file, California withholds as Single with 0 allowances.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Pay details</h2>
+    <label style="margin-top:0">How do you want to enter pay?</label>
+    <div class="segmented" id="modeSeg">
+      <button data-mode="gross">Gross amount</button>
+      <button data-mode="hours" class="active">Hours × rate</button>
+    </div>
+
+    <div id="grossModeWrap" style="display:none">
+      <label>Gross pay per period</label>
+      <input type="number" id="gross" value="600" min="0" step="1">
+      <label>Overtime included in that gross <span style="font-weight:400;color:var(--ink-soft)">(excluded from 401k)</span></label>
+      <input type="number" id="grossOT" value="0" min="0" step="1">
+    </div>
+
+    <div id="hoursModeWrap">
+      <div class="row2">
+        <div>
+          <label style="margin-top:0">Hourly rate</label>
+          <input type="number" id="rate" value="18.70" min="0" step="0.05">
+        </div>
+        <div>
+          <label style="margin-top:0">Regular hours worked</label>
+          <input type="number" id="hours" value="37" min="0" step="0.25">
+        </div>
+      </div>
+      <label>Overtime hours <span style="font-weight:400;color:var(--ink-soft)">(1.5× rate, optional)</span></label>
+      <input type="number" id="otHours" value="0" min="0" step="0.25">
+      <div class="hint" id="hoursGrossPreview">Gross pay this period: $0.00</div>
+    </div>
+
+    <label>Pay frequency</label>
+    <select id="freq">
+      <option value="26">Biweekly</option>
+      <option value="52" selected>Weekly</option>
+      <option value="24">Semimonthly</option>
+      <option value="12">Monthly</option>
+    </select>
+
+    <label>401(k) contribution (% of gross, pre-tax)</label>
+    <input type="number" id="k401" value="5" min="0" max="100" step="0.5">
+    <div class="hint">Your 401(k) is taken on regular pay only — overtime hours are not included (verified against real paystubs).</div>
+
+    <label>W-4 Step 2 box (multiple jobs)</label>
+    <select id="w4step2">
+      <option value="chk" selected>Checked — higher withholding</option>
+      <option value="std">Not checked — standard withholding</option>
+    </select>
+    <div class="hint">Assumes filing status Single, no other W-4 adjustments. Real paystubs from this program matched the <strong>checked</strong> table exactly, so that's the default.</div>
+
+    <label>Housing rent deduction per period (after-tax)</label>
+    <input type="number" id="rent" value="227" min="0" step="1">
+    <div class="hint">Matches your Disney housing (FCV Housing) deduction — taken out after taxes and 401(k).</div>
+  </div>
+
+  <div class="result-hero">
+    <div class="label">Estimated Net Pay</div>
+    <div class="amount" id="netAmt">$0.00</div>
+    <div class="per" id="netPer">per pay period</div>
+  </div>
+
+  <div class="card">
+    <h2>Breakdown per pay period</h2>
+    <div class="lines">
+      <div class="line">
+        <span class="lname">Gross pay</span>
+        <span class="lval" id="l-gross">$0.00</span>
+      </div>
+      <div class="line deduct">
+        <span class="lname">401(k) contribution<span class="lsub" id="l-k401sub">5% pre-tax</span></span>
+        <span class="lval" id="l-k401">-$0.00</span>
+      </div>
+      <div class="line">
+        <span class="lname">Taxable wages (after 401k)</span>
+        <span class="lval" id="l-taxable">$0.00</span>
+      </div>
+      <div class="line deduct">
+        <span class="lname">Federal income tax<span class="lsub">estimated withholding</span></span>
+        <span class="lval" id="l-fed">-$0.00</span>
+      </div>
+      <div class="line deduct">
+        <span class="lname">Social Security<span class="lsub">6.2% of gross</span></span>
+        <span class="lval" id="l-ss">-$0.00</span>
+      </div>
+      <div class="line deduct">
+        <span class="lname">Medicare<span class="lsub">1.45% of gross</span></span>
+        <span class="lval" id="l-medicare">-$0.00</span>
+      </div>
+      <div class="line deduct" id="l-state-row">
+        <span class="lname">State tax<span class="lsub" id="l-statesub">—</span></span>
+        <span class="lval" id="l-state">-$0.00</span>
+      </div>
+      <div class="line deduct">
+        <span class="lname">Housing rent<span class="lsub">after-tax</span></span>
+        <span class="lval" id="l-rent">-$0.00</span>
+      </div>
+      <div class="line total">
+        <span class="lname">Net (take-home) pay</span>
+        <span class="lval" id="l-net">$0.00</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>401(k) going to your future self</h2>
+    <div class="lines">
+      <div class="line add">
+        <span class="lname">This period's contribution</span>
+        <span class="lval" id="l-k401-2">$0.00</span>
+      </div>
+      <div class="line add">
+        <span class="lname">Annualized, at this pay rate</span>
+        <span class="lval" id="l-k401-year">$0.00</span>
+      </div>
+    </div>
+    <div class="footnote">This tool assumes a <strong>traditional (pre-tax) 401(k)</strong>, which lowers the wages federal (and state, where applicable) income tax is calculated on, but not Social Security or Medicare wages.</div>
+  </div>
+
+  <div class="card">
+    <div class="footnote">
+      <strong>How this estimate works:</strong> Federal withholding uses the 2026 IRS Pub 15-T percentage-method table for a single filer (standard or Step 2 'checked' schedule, your choice), annualized from your entered pay period. 401(k) is calculated on regular pay only, not overtime. Actual withholding depends on your W-4 elections, and your actual year-end tax liability depends on your full-year income and filing status. Social Security is withheld at 6.2% and Medicare at 1.45% of gross wages, per current payroll tax rules. This is an estimate for planning only, not tax or financial advice — your actual paycheck may differ.
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const fmt = n => '$' + (Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+
+  // 2026 IRS Pub 15-T Percentage Method, Single/MFS, annual.
+  // 'std' = W-4 Step 2 box NOT checked; 'chk' = Step 2 box checked (multiple jobs).
+  const fedStd = [
+    {upTo: 7500,     base: 0,         rate: 0.00, over: 0},
+    {upTo: 19900,    base: 0,         rate: 0.10, over: 7500},
+    {upTo: 57900,    base: 1240,      rate: 0.12, over: 19900},
+    {upTo: 113200,   base: 5800,      rate: 0.22, over: 57900},
+    {upTo: 209275,   base: 17966,     rate: 0.24, over: 113200},
+    {upTo: 263725,   base: 41024,     rate: 0.32, over: 209275},
+    {upTo: 648100,   base: 58448,     rate: 0.35, over: 263725},
+    {upTo: Infinity, base: 192979.25, rate: 0.37, over: 648100}
+  ];
+  const fedChk = [
+    {upTo: 8050,     base: 0,         rate: 0.00, over: 0},
+    {upTo: 14250,    base: 0,         rate: 0.10, over: 8050},
+    {upTo: 33250,    base: 620,       rate: 0.12, over: 14250},
+    {upTo: 60900,    base: 2900,      rate: 0.22, over: 33250},
+    {upTo: 108938,   base: 8983,      rate: 0.24, over: 60900},
+    {upTo: 136163,   base: 20512,     rate: 0.32, over: 108938},
+    {upTo: 328350,   base: 29224,     rate: 0.35, over: 136163},
+    {upTo: Infinity, base: 96489.63,  rate: 0.37, over: 328350}
+  ];
+
+  // 2026 California EDD Method B (DE 44), annual payroll period, Single.
+  // Source: https://edd.ca.gov/siteassets/files/pdf_pub_ctr/26methb.pdf (Table 5)
+  const caBrackets = [
+    {upTo: 11079,    base: 0,         rate: 0.011,  over: 0},
+    {upTo: 26264,    base: 121.87,    rate: 0.022,  over: 11079},
+    {upTo: 41452,    base: 455.94,    rate: 0.044,  over: 26264},
+    {upTo: 57542,    base: 1124.21,   rate: 0.066,  over: 41452},
+    {upTo: 72724,    base: 2186.15,   rate: 0.088,  over: 57542},
+    {upTo: 371479,   base: 3522.17,   rate: 0.1023, over: 72724},
+    {upTo: 445771,   base: 34084.81,  rate: 0.1133, over: 371479},
+    {upTo: 742953,   base: 42502.09,  rate: 0.1243, over: 445771},
+    {upTo: 1000000,  base: 79441.81,  rate: 0.1353, over: 742953},
+    {upTo: Infinity, base: 114220.27, rate: 0.1463, over: 1000000}
+  ];
+  const CA_STD_DEDUCTION = 5706;        // Table 3, annual, Single
+  const CA_LOW_INCOME_EXEMPT = 18896;   // Table 1, annual, Single: no CA income tax withheld at/below this
+  const CA_ALLOWANCE_CREDIT = 168.30;   // Table 4, annual credit per regular allowance
+  const CA_SDI_RATE = 0.013;            // 2026 SDI (includes PFL), no wage cap
+
+  function progressiveTax(amount, brackets){
+    if(amount <= 0) return 0;
+    for(const b of brackets){
+      if(amount <= b.upTo){
+        return b.base + (amount - b.over) * b.rate;
+      }
+    }
+    return 0;
+  }
+
+  const SS_RATE = 0.062;
+  const MEDICARE_RATE = 0.0145;
+  const SS_WAGE_CAP = 184500; // 2026
+
+  let currentLoc = 'FL';
+
+  const locSeg = document.getElementById('locSeg');
+  const customWrap = document.getElementById('customRateWrap');
+  const locHint = document.getElementById('locHint');
+
+  locSeg.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    [...locSeg.children].forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentLoc = btn.dataset.loc;
+    customWrap.classList.toggle('show', currentLoc === 'OTHER');
+    document.getElementById('caAllowWrap').classList.toggle('show', currentLoc === 'CA');
+    if(currentLoc === 'FL'){
+      locHint.textContent = "Florida has no state income tax, so this only estimates federal tax and FICA.";
+    } else if(currentLoc === 'CA'){
+      locHint.textContent = "California has state income tax (EDD Method B, 2026 tables) plus 1.3% SDI with no wage cap, both estimated below.";
+    } else {
+      locHint.textContent = "Enter a flat percentage to approximate your state's income tax.";
+    }
+    calculate();
+  });
+
+  document.getElementById('customRate').addEventListener('input', calculate);
+  document.getElementById('caAllow').addEventListener('input', calculate);
+  document.getElementById('gross').addEventListener('input', calculate);
+  document.getElementById('freq').addEventListener('input', calculate);
+  document.getElementById('k401').addEventListener('input', calculate);
+  document.getElementById('rate').addEventListener('input', calculate);
+  document.getElementById('hours').addEventListener('input', calculate);
+  document.getElementById('otHours').addEventListener('input', calculate);
+  document.getElementById('rent').addEventListener('input', calculate);
+  document.getElementById('grossOT').addEventListener('input', calculate);
+  document.getElementById('w4step2').addEventListener('change', calculate);
+
+  let payMode = 'hours';
+  const modeSeg = document.getElementById('modeSeg');
+  const grossModeWrap = document.getElementById('grossModeWrap');
+  const hoursModeWrap = document.getElementById('hoursModeWrap');
+
+  modeSeg.addEventListener('click', (e)=>{
+    const btn = e.target.closest('button');
+    if(!btn) return;
+    [...modeSeg.children].forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    payMode = btn.dataset.mode;
+    grossModeWrap.style.display = payMode === 'gross' ? 'block' : 'none';
+    hoursModeWrap.style.display = payMode === 'hours' ? 'block' : 'none';
+    calculate();
+  });
+
+  function computeGrossFromHours(){
+    const rate = parseFloat(document.getElementById('rate').value) || 0;
+    const hours = parseFloat(document.getElementById('hours').value) || 0;
+    const otHours = parseFloat(document.getElementById('otHours').value) || 0;
+    return { regular: rate * hours, ot: rate * 1.5 * otHours };
+  }
+
+  function calculate(){
+    let gross, otPay;
+    if(payMode === 'hours'){
+      const p = computeGrossFromHours();
+      gross = p.regular + p.ot;
+      otPay = p.ot;
+      document.getElementById('hoursGrossPreview').textContent = 'Gross pay this period: ' + fmt(gross);
+    } else {
+      gross = parseFloat(document.getElementById('gross').value) || 0;
+      otPay = Math.min(gross, Math.max(0, parseFloat(document.getElementById('grossOT').value) || 0));
+    }
+    const periods = parseFloat(document.getElementById('freq').value) || 26;
+    const k401pct = Math.max(0, parseFloat(document.getElementById('k401').value) || 0) / 100;
+
+    const k401amt = Math.round((gross - otPay) * k401pct * 100) / 100; // OT is not 401(k)-eligible
+    const taxableWage = gross - k401amt; // pre-tax 401k reduces federal/state taxable wages
+
+    const annualTaxable = taxableWage * periods;
+    const fedTable = document.getElementById('w4step2').value === 'chk' ? fedChk : fedStd;
+    const annualFed = progressiveTax(annualTaxable, fedTable);
+    const fedThisPeriod = Math.round(annualFed / periods * 100) / 100;
+
+    // FICA is calculated on gross wages (401k does not reduce FICA wages)
+    const ssThisPeriod = Math.round(Math.min(gross, SS_WAGE_CAP) * SS_RATE * 100) / 100;
+    const medicareThisPeriod = Math.round(gross * MEDICARE_RATE * 100) / 100;
+
+    let stateThisPeriod = 0;
+    let stateLabel = '—';
+
+    if(currentLoc === 'FL'){
+      stateThisPeriod = 0;
+      stateLabel = 'No state income tax (FL)';
+    } else if(currentLoc === 'CA'){
+      const allowances = Math.max(0, Math.floor(parseFloat(document.getElementById('caAllow').value) || 0));
+      const annualGross = gross * periods;
+      let caIncomeTaxPeriod = 0;
+      if(annualGross > CA_LOW_INCOME_EXEMPT){
+        const annualCaTaxable = Math.max(0, annualTaxable - CA_STD_DEDUCTION);
+        const annualCaTax = Math.max(0, progressiveTax(annualCaTaxable, caBrackets) - allowances * CA_ALLOWANCE_CREDIT);
+        caIncomeTaxPeriod = Math.round(annualCaTax / periods * 100) / 100;
+      }
+      const caSdiPeriod = Math.round(gross * CA_SDI_RATE * 100) / 100;
+      stateThisPeriod = caIncomeTaxPeriod + caSdiPeriod;
+      stateLabel = 'CA income tax ' + fmt(caIncomeTaxPeriod) + ' + SDI (1.3%) ' + fmt(caSdiPeriod);
+    } else {
+      const rate = Math.max(0, parseFloat(document.getElementById('customRate').value) || 0) / 100;
+      stateThisPeriod = taxableWage * rate;
+      stateLabel = 'Custom flat rate';
+    }
+
+    const rent = Math.max(0, parseFloat(document.getElementById('rent').value) || 0);
+
+    const net = gross - k401amt - fedThisPeriod - ssThisPeriod - medicareThisPeriod - stateThisPeriod - rent;
+
+    document.getElementById('netAmt').textContent = fmt(net);
+    document.getElementById('l-rent').textContent = '-' + fmt(rent);
+    document.getElementById('l-gross').textContent = fmt(gross);
+    document.getElementById('l-k401').textContent = '-' + fmt(k401amt);
+    document.getElementById('l-k401sub').textContent = (k401pct*100).toFixed(1).replace(/\.0$/,'') + '% of regular pay, pre-tax';
+    document.getElementById('l-taxable').textContent = fmt(taxableWage);
+    document.getElementById('l-fed').textContent = '-' + fmt(fedThisPeriod);
+    document.getElementById('l-ss').textContent = '-' + fmt(ssThisPeriod);
+    document.getElementById('l-medicare').textContent = '-' + fmt(medicareThisPeriod);
+    document.getElementById('l-state').textContent = '-' + fmt(stateThisPeriod);
+    document.getElementById('l-statesub').textContent = stateLabel;
+    document.getElementById('l-net').textContent = fmt(net);
+    document.getElementById('l-k401-2').textContent = fmt(k401amt);
+    document.getElementById('l-k401-year').textContent = fmt(k401amt * periods);
+  }
+
+  calculate();
+})();
+</script>
+
+</body>
+</html>
